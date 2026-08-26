@@ -3,38 +3,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-function createRuneMark() {
-  const mark = new THREE.Group();
-  const material = new THREE.MeshPhysicalMaterial({
-    color: 0x050505,
-    roughness: 0.68,
-    metalness: 0.04,
-    clearcoat: 0.08,
-  });
-  const thickness = 0.072;
-  const depth = 0.034;
-  const addBar = (x1: number, y1: number, x2: number, y2: number) => {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const length = Math.hypot(dx, dy);
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(thickness, length, depth), material);
-    bar.position.set((x1 + x2) / 2, (y1 + y2) / 2, 0);
-    bar.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
-    mark.add(bar);
-  };
-
-  addBar(-0.24, -0.44, -0.24, 0.44);
-  addBar(0.24, -0.44, 0.24, 0.44);
-  addBar(-0.24, 0, 0.02, 0.34);
-  addBar(-0.24, 0, 0.02, -0.34);
-  addBar(0.24, 0, -0.02, 0.34);
-  addBar(0.24, 0, -0.02, -0.34);
-
-  mark.rotation.y = Math.PI / 2;
-  mark.position.set(0.602, -0.12, 0);
-  return mark;
-}
-
 export function RunestoneScene() {
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -130,7 +98,6 @@ export function RunestoneScene() {
         oldMaterials.forEach((material) => material.dispose());
         object.material = stoneMaterial;
       });
-      model.add(createRuneMark());
       scene.add(model);
 
       const resize = () => {
