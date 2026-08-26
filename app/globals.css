@@ -306,7 +306,11 @@ footer { min-height: 150px; display: grid; grid-template-columns: 1fr 2fr 1fr; a
 
 .origin { --orange: #f47a19; --accent-text: #ff9d24; grid-template-columns: .9fr 1.1fr; }
 .artifact-stage { position: relative; z-index: 2; min-height: 700px; display: grid; place-items: center; }
-.artifact-stage > img { position: relative; z-index: 2; width: min(520px, 40vw); max-height: 680px; object-fit: contain; filter: drop-shadow(0 45px 42px rgba(0,0,0,.72)); animation: artifact-float 6s ease-in-out infinite; }
+.artifact-stage > img { position: relative; z-index: 2; width: min(520px, 40vw); max-height: 680px; object-fit: contain; filter: drop-shadow(0 45px 42px rgba(0,0,0,.72)); animation: artifact-float 6s ease-in-out infinite; transition: opacity .7s ease; }
+.runestone-scene { position: absolute; z-index: 2; inset: 0; cursor: grab; touch-action: pan-y; filter: drop-shadow(0 45px 42px rgba(0,0,0,.72)); }
+.runestone-scene:active { cursor: grabbing; }
+.runestone-scene canvas { width: 100%; height: 100%; display: block; }
+.artifact-stage.has-live-runestone .runestone-fallback-image { opacity: 0; pointer-events: none; }
 .artifact-halo { position: absolute; width: min(560px, 42vw); aspect-ratio: 1; border: 1px solid rgba(247,147,26,.34); border-radius: 50%; background: radial-gradient(circle, rgba(247,147,26,.18), transparent 62%); box-shadow: 0 0 90px rgba(247,147,26,.14), inset 0 0 80px rgba(247,147,26,.1); }
 .artifact-halo::before, .artifact-halo::after { content: ""; position: absolute; inset: 13%; border: 1px dashed rgba(247,147,26,.28); border-radius: 50%; transform: rotate(24deg) scaleY(.42); }
 .artifact-halo::after { inset: 30%; transform: rotate(-18deg) scaleY(.56); }
@@ -359,6 +363,7 @@ footer { min-height: 150px; display: grid; grid-template-columns: 1fr 2fr 1fr; a
 
 @media (prefers-reduced-motion: reduce) {
   .hero-backdrop img, .artifact-stage > img { animation: none; }
+  .runestone-scene { display: none; }
   .site-frame::before { display: none; }
 }
 

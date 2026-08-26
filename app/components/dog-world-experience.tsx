@@ -4,6 +4,7 @@ import Image from "next/image";
 import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const OrbitScene = lazy(() => import("./orbit-scene").then((module) => ({ default: module.OrbitScene })));
+const RunestoneScene = lazy(() => import("./runestone-scene").then((module) => ({ default: module.RunestoneScene })));
 
 type Theme = "light" | "dark" | "dog";
 const themes: { id: Theme; label: string }[] = [{ id: "light", label: "Light" }, { id: "dark", label: "Dark" }, { id: "dog", label: "DOG" }];
@@ -171,7 +172,7 @@ export function DogWorldExperience() {
       <section className="origin section" id="origin">
         <AdaptiveOrbit />
         <div className="origin-copy"><p className="eyebrow"><span /> THE ORIGIN</p><h2>Born at Bitcoin<br/>block <em>840,000.</em></h2><p>DOG was distributed freely to the Runestone community. No presale. No team allocation. No permission required.</p><div className="origin-facts"><span>DOG•GO•TO•THE•MOON</span><span>RUNE 840000:3</span><span>VERIFICATION PATH COMING</span></div></div>
-        <div className="artifact-stage"><div className="artifact-halo" /><Image src="/dog-world-runestone.png" width={1024} height={1280} sizes="(max-width: 820px) 78vw, 34vw" alt="Original Runestone-inspired DOG World provenance artwork" /><div className="artifact-plaque"><span>ORIGIN SIGNAL</span><b>840000:3</b><small>RUNESTONE-INSPIRED CONCEPT ART</small></div></div>
+        <div className="artifact-stage" role="img" aria-label="The original Runestone artifact, rendered from its 3D model"><div className="artifact-halo" /><Image className="runestone-fallback-image" src="/original-runestone-fallback.png" width={594} height={793} sizes="(max-width: 820px) 78vw, 34vw" alt="" /><Suspense fallback={null}><RunestoneScene /></Suspense><div className="artifact-plaque"><span>ORIGIN ARTIFACT</span><b>840000:3</b><small>ORIGINAL RUNESTONE • INTERACTIVE 3D</small></div></div>
         <p className="founder-note">DOG•WORLD is being developed by an original Runestone holder who reports receiving DOG through the original distribution. Public verification is planned.</p>
       </section>
 
