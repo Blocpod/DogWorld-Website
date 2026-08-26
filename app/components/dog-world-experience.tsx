@@ -78,6 +78,29 @@ export function DogWorldExperience() {
   const menuWasOpened = useRef(false);
   const lightFrame = useRef<number | null>(null);
   const chooseTheme = (next: Theme) => applyTheme(next);
+
+  useEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+
+    const resetToHero = () => {
+      if (window.location.hash) {
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+
+    resetToHero();
+    const frame = window.requestAnimationFrame(resetToHero);
+    window.addEventListener("pageshow", resetToHero);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("pageshow", resetToHero);
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
+  }, []);
+
   useEffect(() => {
     if (menuOpen) {
       menuWasOpened.current = true;
