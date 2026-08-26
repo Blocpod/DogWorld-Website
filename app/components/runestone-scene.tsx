@@ -3,7 +3,37 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-type NetworkInformation = { saveData?: boolean };
+function createRuneMark() {
+  const mark = new THREE.Group();
+  const material = new THREE.MeshPhysicalMaterial({
+    color: 0x050505,
+    roughness: 0.68,
+    metalness: 0.04,
+    clearcoat: 0.08,
+  });
+  const thickness = 0.072;
+  const depth = 0.034;
+  const addBar = (x1: number, y1: number, x2: number, y2: number) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const length = Math.hypot(dx, dy);
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(thickness, length, depth), material);
+    bar.position.set((x1 + x2) / 2, (y1 + y2) / 2, 0);
+    bar.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+    mark.add(bar);
+  };
+
+  addBar(-0.24, -0.44, -0.24, 0.44);
+  addBar(0.24, -0.44, 0.24, 0.44);
+  addBar(-0.24, 0, 0.02, 0.34);
+  addBar(-0.24, 0, 0.02, -0.34);
+  addBar(0.24, 0, -0.02, 0.34);
+  addBar(0.24, 0, -0.02, -0.34);
+
+  mark.rotation.y = Math.PI / 2;
+  mark.position.set(0.602, -0.12, 0);
+  return mark;
+}
 
 export function RunestoneScene() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -35,9 +65,7 @@ export function RunestoneScene() {
     };
 
     const initialize = async () => {
-      const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-      const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-      if (motion.matches || connection?.saveData) return;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const probe = document.createElement("canvas");
       if (!(probe.getContext("webgl2") || probe.getContext("webgl"))) return;
 
@@ -63,14 +91,14 @@ export function RunestoneScene() {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(31, 1, 0.1, 50);
       camera.position.set(0, 0.05, 7.25);
-      scene.add(new THREE.HemisphereLight(0xded7ff, 0x140e28, 2.1));
-      const keyLight = new THREE.DirectionalLight(0xb9a7ff, 4.8);
+      scene.add(new THREE.HemisphereLight(0xf4efe6, 0x050505, 2.15));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 5.2);
       keyLight.position.set(-3.5, 4.5, 5);
       scene.add(keyLight);
-      const edgeLight = new THREE.PointLight(0x6858ff, 18, 12, 1.7);
+      const edgeLight = new THREE.PointLight(0xd8d3c8, 16, 12, 1.7);
       edgeLight.position.set(3.2, 0.8, 2.8);
       scene.add(edgeLight);
-      const bitcoinLight = new THREE.PointLight(0xf7931a, 9, 10, 2);
+      const bitcoinLight = new THREE.PointLight(0xf7931a, 4.5, 10, 2);
       bitcoinLight.position.set(-2.6, -2.4, 2.2);
       scene.add(bitcoinLight);
 
@@ -88,18 +116,22 @@ export function RunestoneScene() {
       model = gltf.scene;
       const baseRotation = -Math.PI / 2;
       model.rotation.y = baseRotation;
+      const stoneMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x171719,
+        roughness: 0.46,
+        metalness: 0.06,
+        clearcoat: 0.24,
+        clearcoatRoughness: 0.58,
+        side: THREE.DoubleSide,
+      });
       model.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
-        const material = object.material;
-        if (material instanceof THREE.MeshStandardMaterial) {
-          material.envMapIntensity = 1.35;
-          material.roughness = 0.24;
-          material.metalness = 0.22;
-          material.needsUpdate = true;
-        }
+        const oldMaterials = Array.isArray(object.material) ? object.material : [object.material];
+        oldMaterials.forEach((material) => material.dispose());
+        object.material = stoneMaterial;
       });
+      model.add(createRuneMark());
       scene.add(model);
-      mount.parentElement?.classList.add("has-live-runestone");
 
       const resize = () => {
         if (!renderer) return;
@@ -113,6 +145,10 @@ export function RunestoneScene() {
       resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(mount);
       resize();
+      if (reducedMotion) {
+        renderer.render(scene, camera);
+        return;
+      }
 
       const startedAt = performance.now();
       const animate = (time: number) => {
@@ -129,6 +165,7 @@ export function RunestoneScene() {
     };
 
     const onPointerMove = (event: PointerEvent) => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const bounds = mount.getBoundingClientRect();
       pointerX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
       pointerY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
@@ -151,7 +188,6 @@ export function RunestoneScene() {
       resizeObserver?.disconnect();
       mount.removeEventListener("pointermove", onPointerMove);
       mount.removeEventListener("pointerleave", onPointerLeave);
-      mount.parentElement?.classList.remove("has-live-runestone");
       if (model) disposeModel(model);
       renderer?.dispose();
       renderer?.domElement.remove();
